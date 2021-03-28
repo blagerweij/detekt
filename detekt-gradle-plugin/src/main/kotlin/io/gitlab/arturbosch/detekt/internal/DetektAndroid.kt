@@ -113,7 +113,7 @@ internal class DetektAndroid(private val project: Project) {
             classpath.setFrom(variant.getCompileClasspath(null).filter { it.exists() } + bootClasspath)
             // If a baseline file is configured as input file, it must exist to be configured, otherwise the task fails.
             // We try to find the configured baseline or alternatively a specific variant matching this task.
-            extension.baseline?.existingVariantOrBaseFile(variant.name)?.let { baselineFile ->
+            extension.baseline.existingVariantOrBaseFile(variant.name)?.let { baselineFile ->
                 baseline.set(layout.file(project.provider { baselineFile }))
             }
             reports = extension.reports
@@ -132,7 +132,7 @@ internal class DetektAndroid(private val project: Project) {
         registerCreateBaselineTask(DetektPlugin.BASELINE_TASK_NAME + variant.name.capitalize(), extension) {
             setSource(variant.sourceSets.map { it.javaDirectories })
             classpath.setFrom(variant.getCompileClasspath(null).filter { it.exists() } + bootClasspath)
-            val variantBaselineFile = extension.baseline?.addVariantName(variant.name)
+            val variantBaselineFile = extension.baseline.addVariantName(variant.name)
             baseline.set(project.layout.file(project.provider { variantBaselineFile }))
             description = "EXPERIMENTAL: Creates detekt baseline for ${variant.name} classes with type resolution"
         }

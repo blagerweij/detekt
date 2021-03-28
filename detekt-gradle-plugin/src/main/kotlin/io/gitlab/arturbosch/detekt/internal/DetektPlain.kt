@@ -16,7 +16,7 @@ internal class DetektPlain(private val project: Project) {
 
     private fun Project.registerDetektTask(extension: DetektExtension) {
         val detektTaskProvider = registerDetektTask(DetektPlugin.DETEKT_TASK_NAME, extension) {
-            extension.baseline?.takeIf { it.exists() }?.let { baselineFile ->
+            extension.baseline.takeIf { it.exists() }?.let { baselineFile ->
                 baseline.set(project.layout.file(project.provider { baselineFile }))
             }
             setSource(existingInputDirectoriesProvider(project, extension))

@@ -7,7 +7,10 @@ import org.gradle.api.file.FileCollection
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.androidJvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.common
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.js
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.jvm
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native
 import java.io.File
 
 internal class DetektMultiplatform(private val project: Project) {
@@ -52,7 +55,10 @@ internal class DetektMultiplatform(private val project: Project) {
                         }
                         // If a baseline file is configured as input file, it must exist to be configured, otherwise the task fails.
                         // We try to find the configured baseline or alternatively a specific variant matching this task.
-                        extension.baseline?.existingVariantOrBaseFile(taskSuffix)?.let { baselineFile ->
+                        when (target.platformType) {
+                            jvm, androidJvm -> extension.baseline.existingVariantOrBaseFile(compilation.name)
+                            common, js, native -> extension.baseline.takeIf { it.exists() }
+                        }?.let { baselineFile ->
                             baseline.set(layout.file(project.provider { baselineFile }))
                         }
                         reports = extension.reports
@@ -75,7 +81,7 @@ internal class DetektMultiplatform(private val project: Project) {
                         if (runWithTypeResolution) {
                             classpath.setFrom(inputSource, compilation.compileDependencyFiles)
                         }
-                        val variantBaselineFile = extension.baseline?.addVariantName(taskSuffix)
+                        val variantBaselineFile = extension.baseline.addVariantName(taskSuffix)
                         baseline.set(project.layout.file(project.provider { variantBaselineFile }))
 
                         description = "Creates detekt baseline for ${target.name} and source set ${compilation.name}"

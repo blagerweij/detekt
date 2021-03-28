@@ -29,7 +29,7 @@ internal class DetektJvm(private val project: Project) {
             classpath.setFrom(sourceSet.compileClasspath.existingFiles(), sourceSet.output.classesDirs.existingFiles())
             // If a baseline file is configured as input file, it must exist to be configured, otherwise the task fails.
             // We try to find the configured baseline or alternatively a specific variant matching this task.
-            extension.baseline?.existingVariantOrBaseFile(sourceSet.name)?.let { baselineFile ->
+            extension.baseline.existingVariantOrBaseFile(sourceSet.name)?.let { baselineFile ->
                 baseline.set(layout.file(project.provider { baselineFile }))
             }
             reports = extension.reports
@@ -47,7 +47,7 @@ internal class DetektJvm(private val project: Project) {
         registerCreateBaselineTask(DetektPlugin.BASELINE_TASK_NAME + sourceSet.name.capitalize(), extension) {
             setSource(kotlinSourceSet.kotlin.files)
             classpath.setFrom(sourceSet.compileClasspath.existingFiles(), sourceSet.output.classesDirs.existingFiles())
-            val variantBaselineFile = extension.baseline?.addVariantName(sourceSet.name)
+            val variantBaselineFile = extension.baseline.addVariantName(sourceSet.name)
             baseline.set(project.layout.file(project.provider { variantBaselineFile }))
             description = "EXPERIMENTAL: Creates detekt baseline for ${sourceSet.name} classes with type resolution"
         }

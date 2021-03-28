@@ -26,7 +26,7 @@ open class DetektExtension @Inject constructor(objects: ObjectFactory) : CodeQua
     var input: ConfigurableFileCollection =
         objects.fileCollection().from(DEFAULT_SRC_DIR_JAVA, DEFAULT_SRC_DIR_KOTLIN)
 
-    var baseline: File? = null
+    var baseline: File = objects.fileProperty().fileValue(File("baseline.xml")).get().asFile
 
     var basePath: String? = null
 
