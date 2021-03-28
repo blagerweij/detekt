@@ -71,15 +71,13 @@ class DslGradleRunner @Suppress("LongParameterList") constructor(
         }
 
         projectLayout.submodules.forEach { submodule ->
-            val moduleRoot = File(rootDir, submodule.name)
-            moduleRoot.mkdirs()
-            File(moduleRoot, buildFileName).writeText(submodule.buildFileContent ?: "")
+            submodule.writeModuleFile(buildFileName, submodule.buildFileContent ?: "")
             submodule.srcDirs.forEachIndexed { srcDirIdx, moduleSourceDir ->
                 repeat(submodule.numberOfSourceFilesPerSourceDir) {
                     val withCodeSmell =
                         srcDirIdx * submodule.numberOfSourceFilesPerSourceDir + it < submodule.numberOfCodeSmells
                     writeKtFile(
-                        dir = File(moduleRoot, moduleSourceDir),
+                        dir = File(submodule.moduleRoot, moduleSourceDir),
                         className = "My$srcDirIdx${submodule.name}${it}Class",
                         withCodeSmell = withCodeSmell
                     )
@@ -94,6 +92,10 @@ class DslGradleRunner @Suppress("LongParameterList") constructor(
         File(rootDir, filename).writeText(content)
     }
 
+    private fun Submodule.writeModuleFile(filename: String, content: String) {
+        File(moduleRoot, filename).writeText(content)
+    }
+
     fun writeKtFile(srcDir: String, className: String) {
         writeKtFile(File(rootDir, srcDir), className)
     }
@@ -102,6 +104,9 @@ class DslGradleRunner @Suppress("LongParameterList") constructor(
         dir.mkdirs()
         File(dir, "$className.kt").writeText(ktFileContent(className, withCodeSmell))
     }
+
+    private val Submodule.moduleRoot: File
+        get() = File(rootDir, name).apply { mkdirs() }
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun buildGradleRunner(tasks: List<String>): GradleRunner {
