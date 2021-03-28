@@ -239,11 +239,7 @@ class DetektMultiplatformTest : Spek({
 
     describe(
         "multiplatform projects - iOS target",
-        skip = if (isMacOs()) {
-            Skip.No
-        } else {
-            Skip.Yes("Not on MacOS.")
-        }
+        skip = Skip.Yes("Not on MacOS.")
     ) {
         val gradleRunner = setupProject {
             addSubmodule(
